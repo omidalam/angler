@@ -9,9 +9,9 @@ setup(name='angler',
       license='BSD',
       packages=['angler'],
       install_requires=[
-          'skimage',
+          'scikit-image',
           'numpy',
           'scipy',
           'matplotlib'
-      ]
+      ],
       zip_safe=False)
