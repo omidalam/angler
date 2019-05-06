@@ -1,7 +1,7 @@
 """
-Cool tools
+Angler
 ~~~~~~~~~~
-The hook to catch your FISH.
+The hook to catch your FISH data.
 :author: Omid Gholamalamdari
 :license: BSD
 """
