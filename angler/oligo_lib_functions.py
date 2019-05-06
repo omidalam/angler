@@ -1,25 +1,3 @@
-def tiff_imp(file_path,zxy_ch):
-    '''
-    Import a ome.tif file and returns it as an numpy ndarray.
-    
-    It move the first axis to the end to match skimage dimension recommendations.
-    
-    Prameters:
-    file_path: Location of the ome.tif file.
-
-    Returns:
-    ndarray: Pixel values of ome.tif file.
-
-    '''
-
-    from skimage import io
-    import numpy as np
-    img = io.imread(file_path)
-    #In my images the channel is the first dimension
-    #skikit recommends to have the following order for fast computation (Z,X,Y,ch)
-    img2 = np.moveaxis(img,zxy_ch,[0,1,2,3])
-    return img2
-
 def FISH_finder(img,thresh,exclude_border):
     from skimage.feature import peak_local_max
     from scipy import ndimage as ndi
@@ -32,10 +10,15 @@ def FISH_finder(img,thresh,exclude_border):
     happen to be on proximity of 20 pixel,only the brighter one will be kept.
 
     Parameters:
-    img: 2-D ndarray (i.e,single channel) thresh: flaot 0.0-1.0 relative
-    threshold of the peaks value, compared to maximum value of the image.
+    img: 2-D ndarray (i.e,single channel) 
+
+    min_distance= minimum distance of two FISH spot
+    
+    thresh: flaot 0.0-1.0 relative threshold of the peaks value, compared to maximum value of the image.
+    
     exclude_border: int excludes local peaks that are in the border of an
     image.
+
 
     Returns:
     ndarray: (row, column, …) coordinates of peaks.
