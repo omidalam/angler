@@ -34,7 +34,7 @@ def im_prj(img,z_ind,method='max-prj'):
     # You can tell which axis is Z if you know number of Z stacks.
     import numpy as np
     #Project image along Z axis
-    if method=="max-prj":
+    if method=="max":
         return(np.amax(img,axis=z_ind))
     if method=="sum":
         return(np.sum(img,axis=z_ind))
