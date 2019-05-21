@@ -1,0 +1,11 @@
+README.md
+setup.py
+angler/__init__.py
+angler/io.py
+angler/oligo_lib_functions.py
+angler.egg-info/PKG-INFO
+angler.egg-info/SOURCES.txt
+angler.egg-info/dependency_links.txt
+angler.egg-info/not-zip-safe
+angler.egg-info/requires.txt
+angler.egg-info/top_level.txt
