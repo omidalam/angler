@@ -1,0 +1,14 @@
+name: angler
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - python=3.7.*
+  - numpy=1.16.*
+  - pandas=0.24.*
+  - pillow=6.0.*
+  - nb_conda
+  - scikit-image=0.15.*
+  - scipy=1.2
+  - matplotlib
+  - seaborn
