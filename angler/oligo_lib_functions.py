@@ -28,7 +28,7 @@ def FISH_finder(img,thresh,exclude_border):
     return coordinates
     
 
-def im_prj(img,z_ind,method='max-prj'):
+def im_prj(img,z_ind,method='max'):
     # img should be hyperstack image in numpy format.
     # You can findout which axis is z by the following coomand: img.shape
     # You can tell which axis is Z if you know number of Z stacks.

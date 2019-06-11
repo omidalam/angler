@@ -7,5 +7,5 @@ The hook to catch your FISH data.
 """
 import logging
 __version__ = '0.1.0'
-from .io import tiff_imp
+from .io import *
 from .oligo_lib_functions import *

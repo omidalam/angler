@@ -13,4 +13,4 @@ dependencies:
   - matplotlib
   - seaborn
   - openjdk=8
-  - pyimagej
+  - pyimagej=0.4.0

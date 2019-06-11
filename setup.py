@@ -12,6 +12,7 @@ setup(name='angler',
           'scikit-image',
           'numpy',
           'scipy',
-          'matplotlib'
+          'matplotlib',
+          'pyimagej'
       ],
       zip_safe=False)

@@ -19,3 +19,20 @@ def tiff_imp(file_path,zxy_ch):
     #In my images the channel is the first dimension
     #skikit recommends to have the following order for fast computation (Z,X,Y,ch)
     return np.moveaxis(img,zxy_ch,[0,1,2,3])
+
+def dv_import(file_path,ij):
+    '''
+    Imports a DeltaVision file using FIJI. This requires an imagej Java VM to be open.
+
+    Prameters:
+    file_path: location of .dv file
+    ij: imageJ instance
+
+    Returns:
+    Image as an numpy array.
+    '''
+
+    import numpy as np
+
+    img=ij.io().open(file_path)
+    return ij.py.from_java(img)
