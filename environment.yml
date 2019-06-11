@@ -12,3 +12,5 @@ dependencies:
   - scipy=1.2
   - matplotlib
   - seaborn
+  - openjdk=8
+  - pyimagej
