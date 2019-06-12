@@ -29,10 +29,13 @@ def dv_import(file_path,ij):
     ij: imageJ instance
 
     Returns:
-    Image as an numpy array.
+    Image as an numpy array. The axes order is z,x,y,ch.
     '''
 
     import numpy as np
 
     img=ij.io().open(file_path)
-    return ij.py.from_java(img)
+    as_np=ij.py.from_java(img)
+    np_reorder=np.moveaxis(as_np,0,-1)
+
+    return np_reorder
