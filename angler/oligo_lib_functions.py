@@ -1,8 +1,5 @@
 def FISH_finder(img,thresh,exclude_border):
-    from skimage.feature import peak_local_max
-    from scipy import ndimage as ndi
     '''
-
     This function finds the coordinates of local maxima in max-projected FISH
     data.
 
@@ -24,6 +21,9 @@ def FISH_finder(img,thresh,exclude_border):
     ndarray: (row, column, …) coordinates of peaks.
 
     '''
+    from skimage.feature import peak_local_max
+    from scipy import ndimage as ndi
+    
     coordinates = peak_local_max(img, min_distance=20, threshold_rel=thresh,exclude_border=exclude_border)
     return coordinates
     
