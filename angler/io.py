@@ -39,3 +39,25 @@ def dv_import(file_path,ij):
     np_reorder=np.moveaxis(as_np,0,-1)
 
     return np_reorder
+
+def zstack_import(file_path,ij,file_type):
+    '''
+    Imports a DeltaVision file using FIJI. This requires an imagej Java VM to be open.
+
+    Prameters:
+    file_path: location of .dv file
+    ij: imageJ instance
+
+    Returns:
+    Image as an numpy array. The axes order is z,x,y,ch.
+    '''
+
+    import numpy as np
+
+    img=ij.io().open(file_path)
+    as_np=ij.py.from_java(img)
+    if file_type=="dv":
+        np_reorder=np.moveaxis(as_np,0,-1)
+    elif file_type=="flex":
+        np_reorder=np.moveaxis(as_np,1,-1)
+    return np_reorder
