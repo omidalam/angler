@@ -1,3 +1,23 @@
+def FISH_finder_dry(folder_path,file_ext,FISH_ch,FISH_ch_names,thresh=0.5,exclude_border=40):
+    '''
+    This function performs a dry run to detect FISH spots.
+    The sole purpose of this function to emprically find best threshold for a ceratin FISH experiment.
+
+    Input Parameters:
+    folder_path: str, A folder containing FISH mciroscopy data
+    files_ext: str, file extension to search in the folder (e.g. "D3D.dv", ".dv",".flex")
+    FISH_ch: tuple of ints containing channel numbers containing FISH signals (index is zero based)
+    FISH_ch_names: tuple of strs containing channel names for FISH signals (e.g. "RP11-33o9", "lib11",etc)
+    thresh: float 0.0-1.0 relative threshold of the peaks value, compared to maximum value of the image.
+    exclude_border: int excludes local peaks that are in the border of an image.
+    min_dist: int excludes local peaks that are closer than this value to each other. 
+    '''
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+
+    
+
+
 def FISH_finder(img,thresh,exclude_border):
     '''
     This function finds the coordinates of local maxima in max-projected FISH
@@ -13,8 +33,7 @@ def FISH_finder(img,thresh,exclude_border):
     
     thresh: flaot 0.0-1.0 relative threshold of the peaks value, compared to maximum value of the image.
     
-    exclude_border: int excludes local peaks that are in the border of an
-    image.
+    exclude_border: int excludes local peaks that are in the border of an image.
 
 
     Returns:
@@ -26,7 +45,6 @@ def FISH_finder(img,thresh,exclude_border):
     
     coordinates = peak_local_max(img, min_distance=20, threshold_rel=thresh,exclude_border=exclude_border)
     return coordinates
-
     
 
 def im_prj(img,z_ind,method='max'):
