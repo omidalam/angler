@@ -55,9 +55,11 @@ def zstack_import(file_path,ij,file_type):
     import numpy as np
 
     img=ij.io().open(file_path)
+    # img=ij.openImage(str(file_path))
     as_np=ij.py.from_java(img)
     if file_type=="dv":
         np_reorder=np.moveaxis(as_np,0,-1)
     elif file_type=="flex":
         np_reorder=np.moveaxis(as_np,1,-1)
+    # img.close()
     return np_reorder

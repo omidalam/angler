@@ -13,6 +13,7 @@ setup(name='angler',
           'numpy',
           'scipy',
           'matplotlib',
-          'pyimagej'
+          'pyimagej',
+          'reportlab'
       ],
       zip_safe=False)
