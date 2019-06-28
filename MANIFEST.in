@@ -1,1 +1,1 @@
-recursive-include angler/logo *
+graft angler/logo/

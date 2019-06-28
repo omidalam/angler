@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages,setup
 
 setup(name='angler',
       version='0.1.0',
@@ -7,7 +7,7 @@ setup(name='angler',
       author='Omid Gholamalamdari',
       author_email='qolam@omidalam.com',
       license='BSD',
-      packages=['angler'],
+      packages=find_packages(),
       install_requires=[
           'scikit-image',
           'numpy',
@@ -16,4 +16,5 @@ setup(name='angler',
           'pyimagej',
           'reportlab'
       ],
+      inculde_package_data=True,
       zip_safe=False)
