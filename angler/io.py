@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
-import imagej
+# import imagej
 import angler
 
 import os
@@ -40,6 +40,8 @@ class MicMetadata:
             self.pixel_size=xml.image().Pixels.PhysicalSizeX
         self.z_resolution=xml.image().Pixels.PhysicalSizeZ
         self.pixel_type=xml.image().Pixels.PixelType
+        bioformats.clear_image_reader_cache()
+        javabridge._javabridge.reap()
 
 class MicImage(MicMetadata):
     """A class for storing Microscopic images as numpy ndarray with their metadata."""
@@ -47,10 +49,23 @@ class MicImage(MicMetadata):
     def __init__(self,image_path):
         super().__init__(image_path)
         self.pixels=np.zeros((self.size_z,self.size_y,self.size_x,self.size_c))
-        for channel in range(self.size_c):
-            for z_index in range(self.size_z):
-                self.pixels[z_index,:,:,channel]= load_image(image_path,c=channel,z=z_index,rescale=False)
+        with ImageReader(image_path) as rdr:
+            for channel in range(self.size_c):
+                for z_index in range(self.size_z):
+                    # self.pixels[z_index,:,:,channel]= load_image(image_path,c=channel,z=z_index,rescale=False)
+                    self.pixels[z_index,:,:,channel]= rdr.read(c=channel,z=z_index,rescale=False)
+            rdr.close()
         bioformats.clear_image_reader_cache()
+        javabridge._javabridge.reap()
+    def prj(self,method):
+        valid_methods={"max","sum"}
+        if method not in valid_methods:
+            warnings.warn("Projection method is not valid, pick from following valid methods: {valid_methods}", UserWarning)
+        elif method=="max":
+            return(np.amax(self.pixels,axis=0))
+        elif method=="sum":
+            return(np.sum(self.pixels,axis=0))
+
 
 
 def tiff_imp(file_path,zxy_ch):
