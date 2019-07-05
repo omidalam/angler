@@ -43,8 +43,8 @@ def FISH_finder(img,thresh,crop_size=40):
     from skimage.feature import peak_local_max
     from scipy import ndimage as ndi
     from math import sqrt
-    min_dist=sqrt(2*(crop_size/2^2))
-    coordinates = peak_local_max(img, min_distance=sqrt(2*crop_size)20,
+    min_loci_dist=sqrt(2*(crop_size/2^2))
+    coordinates = peak_local_max(img, min_distance=min_loci_dist,
      threshold_rel=thresh,exclude_border=crop_size/2)
     return coordinates
     
