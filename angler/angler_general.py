@@ -18,7 +18,7 @@ def FISH_finder_dry(folder_path,file_ext,FISH_ch,FISH_ch_names,thresh=0.5,exclud
     
 
 
-def FISH_finder(img,thresh,exclude_border):
+def FISH_finder(img,thresh,crop_size=40):
     '''
     This function finds the coordinates of local maxima in max-projected FISH
     data.
@@ -42,8 +42,10 @@ def FISH_finder(img,thresh,exclude_border):
     '''
     from skimage.feature import peak_local_max
     from scipy import ndimage as ndi
-    
-    coordinates = peak_local_max(img, min_distance=20, threshold_rel=thresh,exclude_border=exclude_border)
+    from math import sqrt
+    min_dist=sqrt(2*(crop_size/2^2))
+    coordinates = peak_local_max(img, min_distance=sqrt(2*crop_size)20,
+     threshold_rel=thresh,exclude_border=crop_size/2)
     return coordinates
     
 
