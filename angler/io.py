@@ -108,11 +108,11 @@ class MicImage(MicMetadata):
         elif method=="max":
             self.maxprj=(np.amax(self.pixels,axis=0))
             print("3D-image max projected along z axis. You can access it through image.maxprj")
-            return self.maxprj
+            # return self.maxprj
         elif method=="sum":
             self.sumprj=(np.sum(self.pixels,axis=0))
             print("3D-image max projected along z axis. You can access it through image.sumprj")
-            return self.sumprj
+            # return self.sumprj
     def crop(self,channel,center_coord,crop_size):
         x1=center_coord[0]-int(crop_size/2)
         x2=x1+crop_size
