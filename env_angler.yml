@@ -15,5 +15,6 @@ dependencies:
   - scipy=1.2
   - matplotlib
   - seaborn
+  - openjdk
   - javabridge
   - opencv
