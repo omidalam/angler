@@ -143,9 +143,7 @@ def pdf_merger(output_path, input_paths):
 def subtract_bkg(MicImage_cls):
     """
     Subtract background as measured by pixels mode from the image.
-
     Returns a new MicImage with previous meta data but new pixels.
-
     """
     from statistics import mode as dmode
     img_mod=np.full_like(MicImage_cls.pixels, dmode(MicImage_cls.pixels.flatten()))
