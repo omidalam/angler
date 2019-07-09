@@ -13,7 +13,7 @@ setup(name='angler',
           'numpy',
           'scipy',
           'matplotlib',
-          'python-bioformats',
+          'pyimagej',
           'reportlab'
       ],
       inculde_package_data=True,

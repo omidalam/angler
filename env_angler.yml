@@ -3,14 +3,18 @@ channels:
   - anaconda
   - conda-forge
 dependencies:
-  - python=3.7.*
-  - numpy=1.16.*
-  - pandas=0.24.*
-  - pillow=6.0.*
+  - python>=3.6
+  - pip
+  - pip:
+    - python-bioformats
+  - numpy
+  - pandas
+  - pillow
   - nb_conda
   - scikit-image=0.15.*
   - scipy=1.2
   - matplotlib
   - seaborn
-  - openjdk=8
-  - pyimagej=0.4.0
+  - openjdk
+  - javabridge
+  - opencv
