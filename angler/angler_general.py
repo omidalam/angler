@@ -140,3 +140,16 @@ def pdf_merger(output_path, input_paths):
     with open(output_path, 'wb') as fileobj:
         merged.write(fileobj)
 
+def subtract_bkg(MicImage_cls):
+    """
+    Subtract background as measured by pixels mode from the image.
+
+    Returns a new MicImage with previous meta data but new pixels.
+
+    """
+    from statistics import mode as dmode
+    img_mod=np.full_like(MicImage_cls.pixels, dmode(MicImage_cls.pixels.flatten()))
+    image_de_noise=MicImage()
+    image_de_noise._metaData={**MicImage_cls._metaData}
+    image_de_noise.pixels=np.subtract(MicImage_cls.pixels,img_mod)
+    return image_de_noise 
