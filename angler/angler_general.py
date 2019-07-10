@@ -1,3 +1,14 @@
+from skimage.feature import peak_local_max
+from scipy import ndimage as ndi
+from math import sqrt
+import numpy as np
+
+from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import cm, inch
+import ntpath
+import tempfile
+
 def FISH_finder_dry(folder_path,file_ext,FISH_ch,FISH_ch_names,thresh=0.5,exclude_border=40):
     '''
     This function performs a dry run to detect FISH spots.
@@ -40,9 +51,7 @@ def FISH_finder(img,thresh,crop_size=40):
     ndarray: (row, column, …) coordinates of peaks.
 
     '''
-    from skimage.feature import peak_local_max
-    from scipy import ndimage as ndi
-    from math import sqrt
+
     min_loci_dist=int(sqrt(2*((crop_size/2)**2)))
     coordinates = peak_local_max(img, min_distance=min_loci_dist,threshold_rel=thresh,exclude_border=int(crop_size/2))
     return coordinates
@@ -52,7 +61,7 @@ def im_prj(img,z_ind,method='max'):
     # img should be hyperstack image in numpy format.
     # You can findout which axis is z by the following coomand: img.shape
     # You can tell which axis is Z if you know number of Z stacks.
-    import numpy as np
+    
     #Project image along Z axis
     if method=="max":
         return(np.amax(img,axis=z_ind))
@@ -60,10 +69,7 @@ def im_prj(img,z_ind,method='max'):
         return(np.sum(img,axis=z_ind))
 
 def rep_first_page(pars):
-    import time
-    from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, PageBreak
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.lib.units import cm, inch
+
 
     sample_style_sheet = getSampleStyleSheet()
     flowables = []
@@ -105,7 +111,7 @@ def rep_first_page(pars):
 
 
 def path_leaf(path):
-    import ntpath
+
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
@@ -122,7 +128,7 @@ def update_progress(job_title, index, total):
 
 
 def PDF_gen(flowables, path, counter):
-    import tempfile
+
     pdf_path = path + "/" + str(counter) + ".pdf"
     pdf_report = SimpleDocTemplate(pdf_path)
     sample_style_sheet = getSampleStyleSheet()
@@ -151,3 +157,28 @@ def subtract_bkg(MicImage_cls):
     image_de_noise._metaData={**MicImage_cls._metaData}
     image_de_noise.pixels=np.subtract(MicImage_cls.pixels,img_mod)
     return image_de_noise 
+
+def feret(prj,pixel_size,threshold=0.5,make_convex=True):
+    T=np.amax(prj)*threshold
+    binary_prj=np.zeros_like(prj)
+    binary_prj[prj>T]=1
+    if make_convex:
+        chull=convex_hull_image(binary_prj)
+        binary_prj[chull]=1
+    label_img, tot_objects = label(binary_prj,return_num=True)
+    if tot_objects==1:
+        regions = regionprops(label_img) #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
+        fig, ax = plt.subplots()
+        ax.imshow(binary_prj, cmap=plt.cm.gray)
+        for props in regions:
+            y0, x0 = props.centroid
+            orientation = props.orientation
+            x1 = x0 + math.cos(orientation) * 0.5 * props.major_axis_length
+            y1 = y0 - math.sin(orientation) * 0.5 * props.major_axis_length
+            x2 = x0 - math.cos(orientation) * 0.5 * props.major_axis_length
+            y2 = y0 + math.sin(orientation) * 0.5 * props.major_axis_length
+            ax.plot((x2, x1), (y2, y1), '-r', linewidth=4)
+            feret=(sqrt((x1-x2)**2+(y1-y2)**2) * pixel_size)
+            return feret
+    elif tot_objects>1:
+        warnings.warn("number of detected spots is more than one")
