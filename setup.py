@@ -1,7 +1,7 @@
 from setuptools import find_packages,setup
 
 setup(name='angler',
-      version='0.1.0',
+      version='0.1.1',
       description='Package for fluorescent microscopy image analysis.',
       url='https://github.com/omidalam/angler',
       author='Omid Gholamalamdari',
@@ -9,7 +9,7 @@ setup(name='angler',
       license='BSD',
       packages=find_packages(),
       install_requires=[
-          'scikit-image',
+          'scikit-image=0.14.*',
           'numpy',
           'scipy',
           'matplotlib',

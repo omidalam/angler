@@ -1,13 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from skimage import io
-# import imagej
-import angler
-
-import os
 import javabridge
 import bioformats
-import sys
 from bioformats import *
 import warnings
 
@@ -67,9 +60,9 @@ class MicMetadata:
         if xml.image().Pixels.PhysicalSizeX!= xml.image().Pixels.PhysicalSizeY:
             warnings.warn("X and Y resolutions are not the same", UserWarning)
         else:
-            self._metaData.update({"self.pixel_size":xml.image().Pixels.PhysicalSizeX})
+            self._metaData.update({"pixel_size":xml.image().Pixels.PhysicalSizeX})
         self._metaData.update({"pixel_type":xml.image().Pixels.PixelType})
-        print (self._metaData)
+        # print (self._metaData)
     def meta(self,key=None):
         if self._metaData is None:
             print("Use importMeta method to import metadata first")
@@ -107,12 +100,12 @@ class MicImage(MicMetadata):
             warnings.warn("Projection method is not valid, pick from following valid methods: {valid_methods}", UserWarning)
         elif method=="max":
             self.maxprj=(np.amax(self.pixels,axis=0))
-            print("3D-image max projected along z axis. You can access it through image.maxprj")
-            return self.maxprj
+            # print("3D-image max projected along z axis. You can access it through image.maxprj")
+            # return self.maxprj
         elif method=="sum":
             self.sumprj=(np.sum(self.pixels,axis=0))
-            print("3D-image max projected along z axis. You can access it through image.sumprj")
-            return self.sumprj
+            # print("3D-image max projected along z axis. You can access it through image.sumprj")
+            # return self.sumprj
     def crop(self,channel,center_coord,crop_size):
         x1=center_coord[0]-int(crop_size/2)
         x2=x1+crop_size
