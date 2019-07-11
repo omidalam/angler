@@ -1,13 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from skimage import io
-# import imagej
-import angler
-
-import os
 import javabridge
 import bioformats
-import sys
 from bioformats import *
 import warnings
 
@@ -69,7 +62,7 @@ class MicMetadata:
         else:
             self._metaData.update({"pixel_size":xml.image().Pixels.PhysicalSizeX})
         self._metaData.update({"pixel_type":xml.image().Pixels.PixelType})
-        print (self._metaData)
+        # print (self._metaData)
     def meta(self,key=None):
         if self._metaData is None:
             print("Use importMeta method to import metadata first")
