@@ -195,6 +195,8 @@ def subtract_bkg(MicImage_cls):
     image_de_noise=MicImage()
     image_de_noise._metaData={**MicImage_cls._metaData}
     image_de_noise.pixels=np.subtract(MicImage_cls.pixels,img_mod)
+    image_de_noise.prj("sum")
+    image_de_noise.prj("max")
     return image_de_noise 
 
 def feret(prj,pixel_size,threshold=0.5):
