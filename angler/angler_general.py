@@ -308,7 +308,7 @@ def compaction_plotter(img,ch,ch_pandas,pars):
         crd_y,crd_x=[i-10 for i in loci['crop_coordinates']]
         
         loci_rectangle=Rectangle((crd_x,crd_y),pars['crop_size'],pars['crop_size'],
-                                linewidth=1,edgecolor=loci["box_color"],facecolor='none')
+                                linewidth=.4,edgecolor=loci["box_color"],facecolor='none')
         ax.add_patch(loci_rectangle)
         
         x1,y1=loci['feret_xy1']
@@ -317,7 +317,7 @@ def compaction_plotter(img,ch,ch_pandas,pars):
         x2+=crd_x
         y1+=crd_y
         y2+=crd_y
-        plt.plot((x2, x1), (y2, y1), 'g', linewidth=.4)
+        plt.plot((x2, x1), (y2, y1), '-g', linewidth=.4)
         
         ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
                     xycoords='data', xytext=(10,10),textcoords='offset pixels')
