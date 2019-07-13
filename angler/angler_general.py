@@ -283,7 +283,7 @@ def FISH_finder_plotter(img,FISH_crds,crds_box_color):
     fig.suptitle(title, fontsize=10)
     return fig
 
-def compaction_plotter(img,ch,ch_pandas):
+def compaction_plotter(img,ch,ch_pandas,pars):
     """
     annotates FISH image with coordinates found by FISH_finder.
     Parameters:
