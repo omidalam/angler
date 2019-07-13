@@ -233,6 +233,7 @@ def feret(prj,pixel_size,threshold=0.5):
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
         feret=measure_feret(regions)
         feret.update({"convex_hull":True})
+        feret.update({"noise?":True})
     if regions[0].area<4:
         feret.update({"noise?":True})
     else:
