@@ -317,9 +317,9 @@ def compaction_plotter(img,ch,ch_pandas,pars):
         x2+=crd_x
         y1+=crd_y
         y2+=crd_y
-        plt.plot((x2, x1), (y2, y1), 'y', linewidth=.4)
+        plt.plot((x2, x1), (y2, y1), 'g', linewidth=.4)
         
-        ax.annotate(str(index), c=loci["box_color"],fontsize=8, xy=(crd_x,crd_y),
+        ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
                     xycoords='data', xytext=(10,10),textcoords='offset pixels')
         
 
