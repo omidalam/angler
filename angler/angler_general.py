@@ -17,6 +17,29 @@ import time
 import sys
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from angler import *
+from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import cm,inch
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+from io import BytesIO
+
+import angler
+import bioformats
+from angler import *
+
+from PyPDF2 import PdfFileMerger, PdfFileReader
+import glob
+import os
+import time, sys
+import tempfile
+import gc
+import pickle
+
+import logging
+import numpy as np
+import pandas as pd
 
 def FISH_finder_dry(folder_path,file_ext,FISH_ch,FISH_ch_names,thresh=0.5,exclude_border=40):
     '''
