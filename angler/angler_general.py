@@ -216,6 +216,7 @@ def feret(prj,pixel_size,threshold=0.5):
         return {"feret":max_feret,"feret_xy1":[x1,y1],"feret_xy2":[x2,y2]}
     feret={}
     feret.update({"threshold":threshold})
+    feret.update({"noise?":True})
     feret.update(pixel_size)
     T=np.amax(prj)*threshold
     binary_prj=np.zeros_like(prj)
@@ -225,7 +226,6 @@ def feret(prj,pixel_size,threshold=0.5):
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
         feret=measure_feret(regions)
         feret.update({"convex_hull":False})
-        
     elif tot_objects>1:
         chull=convex_hull_image(binary_prj)
         binary_prj[chull]=1
@@ -233,12 +233,12 @@ def feret(prj,pixel_size,threshold=0.5):
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
         feret=measure_feret(regions)
         feret.update({"convex_hull":True})
+        feret.update({"noise?":True})
     if regions[0].area<4:
         feret.update({"noise?":True})
-    else:
-        feret.update({"noise?":False})
     return feret
 
+    
 def pixel_size(img):
     pixel={}
     if img.meta("pixel_size") is None:
