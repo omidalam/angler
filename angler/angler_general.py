@@ -216,7 +216,8 @@ def feret(prj,pixel_size,threshold=0.5):
         return {"feret":max_feret,"feret_xy1":[x1,y1],"feret_xy2":[x2,y2]}
     feret={}
     feret.update({"threshold":threshold})
-    
+    feret.update({"convex_hull":False})
+    feret.update({"noise?":True})
     feret.update(pixel_size)
     T=np.amax(prj)*threshold
     binary_prj=np.zeros_like(prj)
