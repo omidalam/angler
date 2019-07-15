@@ -228,6 +228,8 @@ def feret(prj,pixel_size,threshold=0.5):
         feret.update(measurement)
         feret.update({"convex_hull":False})
         feret.update({"noise?":False})
+        if regions[0].area<4:
+            feret.update({"noise?":True})
     elif tot_objects>1:
         chull=convex_hull_image(binary_prj)
         binary_prj[chull]=1
@@ -236,8 +238,6 @@ def feret(prj,pixel_size,threshold=0.5):
         measurement=measure_feret(regions)
         feret.update(measurement)        
         feret.update({"convex_hull":True})
-        feret.update({"noise?":True})
-    if regions[0].area<4:
         feret.update({"noise?":True})
     if feret["noise?"] and not feret["convex_hull"]:
         feret.update({"box_color":"m"})
