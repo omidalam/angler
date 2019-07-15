@@ -22,7 +22,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm,inch
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle,Patch
 from io import BytesIO
 
 import angler
@@ -216,7 +216,7 @@ def feret(prj,pixel_size,threshold=0.5):
         return {"feret":max_feret,"feret_xy1":[x1,y1],"feret_xy2":[x2,y2]}
     feret={}
     feret.update({"threshold":threshold})
-    feret.update({"noise?":False})
+    
     feret.update(pixel_size)
     T=np.amax(prj)*threshold
     binary_prj=np.zeros_like(prj)
@@ -224,18 +224,29 @@ def feret(prj,pixel_size,threshold=0.5):
     label_img, tot_objects = label(binary_prj,return_num=True)
     if tot_objects==1:
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
-        feret=measure_feret(regions)
+        measurement=measure_feret(regions)
+        feret.update(measurement)
         feret.update({"convex_hull":False})
+        feret.update({"noise?":False})
     elif tot_objects>1:
         chull=convex_hull_image(binary_prj)
         binary_prj[chull]=1
-        convex_hull=True
+        # convex_hull=True
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
-        feret=measure_feret(regions)
+        measurement=measure_feret(regions)
+        feret.update(measurement)        
         feret.update({"convex_hull":True})
         feret.update({"noise?":True})
     if regions[0].area<4:
         feret.update({"noise?":True})
+    if feret["noise?"] and not feret["convex_hull"]:
+        feret.update({"box_color":"m"})
+    elif feret["convex_hull"] and not feret["noise?"]:
+        feret.update({"box_color":"g"})
+    elif feret["noise?"] and feret["convex_hull"]:
+        feret.update({"box_color":"r"})
+    else:
+        feret.update({"box_color":"y"})
     return feret
 
 
@@ -281,6 +292,8 @@ def FISH_finder_plotter(img,FISH_crds,crds_box_color):
                 xycoords='data', xytext=(10,10),
                 textcoords='offset pixels')
 
+
+
     title = "Channel #:" + pars['ch_names'][ch]
     fig.suptitle(title, fontsize=10)
     return fig
@@ -319,12 +332,17 @@ def compaction_plotter(img,ch,ch_pandas,pars):
         x2+=crd_x
         y1+=crd_y
         y2+=crd_y
-        plt.plot((x2, x1), (y2, y1), 'g', linewidth=.2)
+        plt.plot((x2, x1), (y2, y1), 'g', linewidth=.4)
         
         ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
                     xycoords='data', xytext=(10,10),textcoords='offset pixels')
         
-
+    legend_elements = [Patch(facecolor='m',edgecolor='m',label='Noise'),
+    Patch(facecolor='g',edgecolor='g',label='Convex'),
+    Patch(facecolor='r',edgecolor='r',label='Noise+made convex'),
+    Patch(facecolor='y',edgecolor='y',label='OK')]
+    plt.legend(handles=legend_elements,bbox_to_anchor=(1,0), loc="lower right", 
+                bbox_transform=fig.transFigure, ncol=4)
     title = "Channel #:" + pars['ch_names'][ch]
     fig.suptitle(title, fontsize=10)
     return fig

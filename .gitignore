@@ -1,8 +1,11 @@
+__pycache__/
+#ignore pyc compiled files
+*.pyc
 
-angler/__pycache__/__init__\.cpython-36\.pyc
+# Setuptools distribution folder.
+/dist/
 
-angler/__pycache__/angler_general\.cpython-36\.pyc
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+/*.egg
 
-angler/__pycache__/io\.cpython-36\.pyc
-
-angler/__pycache__/oligo_lib_functions\.cpython-36\.pyc

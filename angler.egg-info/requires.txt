@@ -1,4 +1,4 @@
-scikit-image
+scikit-image==0.15.*
 numpy
 scipy
 matplotlib
