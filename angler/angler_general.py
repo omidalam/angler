@@ -190,8 +190,10 @@ def subtract_bkg(MicImage_cls):
         mode_ind=np.equal(cnts,np.full_like(cnts,max_cnts))
         modes=vals[mode_ind]
         return np.amax(modes)
-    # img_mod=np.full_like(MicImage_cls.pixels, dmode(MicImage_cls.pixels.flatten()))
-    img_mod=np.full_like(MicImage_cls.pixels, modes_max(MicImage_cls.pixels))
+    try:
+        img_mod=np.full_like(MicImage_cls.pixels, dmode(MicImage_cls.pixels.flatten()))
+    except:
+        img_mod=np.full_like(MicImage_cls.pixels, modes_max(MicImage_cls.pixels))
     image_de_noise=MicImage()
     image_de_noise._metaData={**MicImage_cls._metaData}
     image_de_noise.pixels=np.subtract(MicImage_cls.pixels,img_mod)
@@ -200,54 +202,58 @@ def subtract_bkg(MicImage_cls):
     return image_de_noise 
 
 def feret(prj,pixel_size,threshold=0.5):
-    def measure_feret(regions):
-        max_feret=0
-        for props in regions:
-            y0, x0 = props.centroid
-            orientation = props.orientation
-            x1 = x0 + cos(orientation) * 0.5 * props.major_axis_length
-            y1 = y0 - sin(orientation) * 0.5 * props.major_axis_length
-            x2 = x0 - cos(orientation) * 0.5 * props.major_axis_length
-            y2 = y0 + sin(orientation) * 0.5 * props.major_axis_length
+    from skimage import measure
+    from scipy.spatial.distance import cdist
+    
+    def measure_feret(binary_image,pixel_size=1):
+        feret={}
+        contour= measure.find_contours(binary_image,0)[0]
+        feret.update({"contour":contour})
 
-            feret_region=(sqrt((x1-x2)**2+(y1-y2)**2) * float(pixel_size["pixel_size"]))
-            if feret_region>max_feret:
-                max_feret=feret_region
-        return {"feret":max_feret,"feret_xy1":[x1,y1],"feret_xy2":[x2,y2]}
+        dist=np.triu(cdist(contour,contour,"euclidean"),0)
+        max_dist=np.amax(dist)
+
+        feret.update({"feret":max_dist*float(pixel_size)})
+        max_dist_index=(np.where(dist==max_dist))
+        max_dist_index=[max_dist_index[0],max_dist_index[1]]
+        crd=list(zip(max_dist_index[0],max_dist_index[1]))[0]
+        line=[[contour[crd[0],1],contour[crd[1],1]],[contour[crd[0],0],contour[crd[1],0]]]
+        feret.update({"line":line})
+        return feret
+    
     feret={}
     feret.update({"threshold":threshold})
     feret.update({"convex_hull":False})
-    feret.update({"noise?":False})
+    feret.update({"noise":False})
+    feret.update({"box_color":"g"})
     feret.update(pixel_size)
     T=np.amax(prj)*threshold
     binary_prj=np.zeros_like(prj)
     binary_prj[prj>T]=1
     label_img, tot_objects = label(binary_prj,return_num=True)
-    if tot_objects==1:
+    if tot_objects==1:        
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
-        measurement=measure_feret(regions)
+        if regions[0].area<4:
+            feret.update({"noise":True})
+            feret.update({"box_color":"r"})
+        measurement=measure_feret(binary_prj,pixel_size["pixel_size"])
         feret.update(measurement)
         feret.update({"convex_hull":False})
-        feret.update({"noise?":False})
-        if regions[0].area<4:
-            feret.update({"noise?":True})
+
     elif tot_objects>1:
         chull=convex_hull_image(binary_prj)
         binary_prj[chull]=1
-        # convex_hull=True
+        feret.update({"box_color":"m"})
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
-        measurement=measure_feret(regions)
+        if regions[0].area<4:
+            feret.update({"noise":True})
+            feret.update({"box_color":"r"})
+        measurement=measure_feret(binary_prj,pixel_size["pixel_size"])
         feret.update(measurement)        
         feret.update({"convex_hull":True})
-        feret.update({"noise?":True})
-    if feret["noise?"] and not feret["convex_hull"]:
-        feret.update({"box_color":"m"})
-    elif feret["convex_hull"] and not feret["noise?"]:
-        feret.update({"box_color":"g"})
-    elif feret["noise?"] and feret["convex_hull"]:
-        feret.update({"box_color":"r"})
-    else:
-        feret.update({"box_color":"y"})
+#         print(feret)
+#         feret.update({"noise":True})
+#     print(feret)
     return feret
 
 
@@ -322,29 +328,26 @@ def compaction_plotter(img,ch,ch_pandas,pars):
     ax.imshow(rgb)
     for index,loci in ch_pandas.iterrows():
         crd_y,crd_x=[i-10 for i in loci['crop_coordinates']]
-        
-        loci_rectangle=Rectangle((crd_x,crd_y),pars['crop_size'],pars['crop_size'],
+        crd=[crd_x,crd_y]
+        loci_rectangle=Rectangle(tuple(crd),pars['crop_size'],pars['crop_size'],
                                 linewidth=.4,edgecolor=loci["box_color"],facecolor='none')
         ax.add_patch(loci_rectangle)
         
-        try:
-            x1,y1=loci['feret_xy1']
-            x2,y2=loci['feret_xy2']
-            x1+=crd_x
-            x2+=crd_x
-            y1+=crd_y
-            y2+=crd_y
-            plt.plot((x2, x1), (y2, y1), 'g', linewidth=.4)
-        except:
-            print("something went wrong!")
+        # loci["contour"]+=
+        ax.plot(loci["contour"][:,1]+crd_x, loci["contour"][:,0]+crd_y, c="y",linewidth=.1)
+        # print(loci['line'])
+        # loci['line']=[i+crd for i in loci['line']]
+        loci['line'][0]=[i+crd_x for i in loci['line'][0]]
+        loci['line'][1]=[i+crd_y for i in loci['line'][1]]
+        ax.plot(loci['line'][0],loci['line'][1],c="green",linewidth=.2)
+
         
         ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
                     xycoords='data', xytext=(10,10),textcoords='offset pixels')
         
-    legend_elements = [Patch(facecolor='m',edgecolor='m',label='Noise'),
-    Patch(facecolor='g',edgecolor='g',label='Convex'),
-    Patch(facecolor='r',edgecolor='r',label='Noise+made convex'),
-    Patch(facecolor='y',edgecolor='y',label='OK')]
+    legend_elements = [Patch(facecolor='g',edgecolor='g',label='OK'),
+    Patch(facecolor='r',edgecolor='r',label='Noise'),
+    Patch(facecolor='m',edgecolor='m',label='More than 1 object')]
     plt.legend(handles=legend_elements,bbox_to_anchor=(1,0), loc="lower right", 
                 bbox_transform=fig.transFigure, ncol=4)
     title = "Channel #:" + pars['ch_names'][ch]
