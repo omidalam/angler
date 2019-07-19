@@ -236,7 +236,7 @@ def feret(prj,pixel_size,threshold=0.5):
         if regions[0].area<4:
             feret.update({"noise":True})
             feret.update({"box_color":"r"})
-        measurement=measure_feret2(binary_prj,pixel_size["pixel_size"])
+        measurement=measure_feret(binary_prj,pixel_size["pixel_size"])
         feret.update(measurement)
         feret.update({"convex_hull":False})
 
@@ -248,7 +248,7 @@ def feret(prj,pixel_size,threshold=0.5):
         if regions[0].area<4:
             feret.update({"noise":True})
             feret.update({"box_color":"r"})
-        measurement=measure_feret2(binary_prj,pixel_size["pixel_size"])
+        measurement=measure_feret(binary_prj,pixel_size["pixel_size"])
         feret.update(measurement)        
         feret.update({"convex_hull":True})
 #         print(feret)
