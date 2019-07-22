@@ -351,7 +351,7 @@ def compaction_fish(pars):
                         feret_m=feret(prj=no_noise.sumprj,pixel_size=pixel_size(no_noise),threshold=pars['feret_threshold'])
                     else:
                         # measure feret
-                        feret_m=feret(prj=crp.sumprj,pixel_size=pixel_size(crp),threshold=pars['feret_threshold'])
+                        feret_m=feret(prj=crp.sumprj,pixel_size=pixel_size(no_noise),threshold=pars['feret_threshold'])
                     
                     #color code for plot
                     measurement.update(feret_m)
