@@ -343,11 +343,16 @@ def compaction_fish(pars):
                     measurement.update({"crop_coordinates":crd})
                     # crop each crd
                     crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size'])
-                    # remove Background
-                    no_noise=angler.subtract_bkg(crp)
-
-                    # measure feret
-                    feret_m=feret(prj=no_noise.sumprj,pixel_size=pixel_size(no_noise),threshold=pars['feret_threshold'])
+                    
+                    if pars["noise_removal"]:
+                        # remove Background
+                        no_noise=angler.subtract_bkg(crp)
+                        # measure feret
+                        feret_m=feret(prj=no_noise.sumprj,pixel_size=pixel_size(no_noise),threshold=pars['feret_threshold'])
+                    else:
+                        # measure feret
+                        feret_m=feret(prj=crp.sumprj,pixel_size=pixel_size(crp),threshold=pars['feret_threshold'])
+                    
                     #color code for plot
                     measurement.update(feret_m)
                     ch_measurements=ch_measurements.append(pd.DataFrame([measurement]),ignore_index=True)
@@ -424,7 +429,7 @@ def compaction_plotter(img,ch,ch_pandas,pars):
     Patch(facecolor='m',edgecolor='m',label='More than 1 object')]
     plt.legend(handles=legend_elements,bbox_to_anchor=(1,0), loc="lower right", 
                 bbox_transform=fig.transFigure, ncol=4)
-    title = "Channel #:" + pars['ch_names'][ch]
+    title = loci["file_name"]+ "Channel:" + pars['ch_names'][ch]
     fig.suptitle(title, fontsize=10)
     return fig
                              
