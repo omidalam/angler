@@ -315,7 +315,8 @@ def compaction_plotter(img,ch,ch_pandas,pars):
     Returns: Marked figure.
     """
     crds=ch_pandas["crop_coordinates"]
-    rectangle_crds=crds-pars['crop_size']/2
+    half_crop=int(pars['crop_size']/2)
+    rectangle_crds= crds-half_crop
     text_crds=[(x,y) for y,x in crds]
 
     fig, ax = plt.subplots(figsize=(7, 5),dpi=300, sharex=True, sharey=True)
@@ -327,7 +328,7 @@ def compaction_plotter(img,ch,ch_pandas,pars):
 
     ax.imshow(rgb)
     for index,loci in ch_pandas.iterrows():
-        crd_y,crd_x=[i-10 for i in loci['crop_coordinates']]
+        crd_y,crd_x=[i-half_crop for i in loci['crop_coordinates']]
         crd=[crd_x,crd_y]
         loci_rectangle=Rectangle(tuple(crd),pars['crop_size'],pars['crop_size'],
                                 linewidth=.4,edgecolor=loci["box_color"],facecolor='none')
@@ -343,7 +344,7 @@ def compaction_plotter(img,ch,ch_pandas,pars):
 
         
         ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
-                    xycoords='data', xytext=(10,10),textcoords='offset pixels')
+                    xycoords='data', xytext=(half_crop,half_crop),textcoords='offset pixels')
         
     legend_elements = [Patch(facecolor='g',edgecolor='g',label='OK'),
     Patch(facecolor='r',edgecolor='r',label='Noise'),
