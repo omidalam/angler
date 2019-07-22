@@ -140,6 +140,9 @@ def rep_first_page(pars):
     para = Paragraph("Threshold used for feret in all channels %f" %pars['feret_threshold'], sample_style_sheet['BodyText'])
     flowables.append(para)
 
+    para = Paragraph("Noise removed %s" %str(pars['noise_removal']), sample_style_sheet['BodyText'])
+    flowables.append(para)
+
     flowables.append(PageBreak())
 
     return flowables
