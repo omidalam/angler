@@ -131,10 +131,13 @@ def rep_first_page(pars):
     flowables.append(para)
 
     for ch,threshold in zip(pars["FISH_ch"],pars["threshold"]):
-        para = Paragraph("Threshold for channel {0}: {1}".format(ch,threshold), sample_style_sheet['BodyText'])
+        para = Paragraph("Threshold used for FISH_finder in channel {0}: {1}".format(ch,threshold), sample_style_sheet['BodyText'])
         flowables.append(para)
 
     para = Paragraph("Exclude border: %i" % pars["exclude_border"], sample_style_sheet['BodyText'])
+    flowables.append(para)
+
+    para = Paragraph("Threshold used for feret in all channels %f" %pars['feret_threshold'], sample_style_sheet['BodyText'])
     flowables.append(para)
 
     flowables.append(PageBreak())
@@ -304,6 +307,76 @@ def FISH_finder_plotter(img,FISH_crds,crds_box_color):
     title = "Channel #:" + pars['ch_names'][ch]
     fig.suptitle(title, fontsize=10)
     return fig
+
+def compaction_fish(pars):
+    flowb_c = 0
+    global temp_report_dir
+    temp_report_dir = tempfile.TemporaryDirectory(dir="./")
+    flowb_c = angler.PDF_gen(angler.rep_first_page(pars), temp_report_dir.name, counter=flowb_c)
+
+    sample_style_sheet = getSampleStyleSheet()
+    if pars["#ofImages"] is "all":
+        files = glob.glob(pars['folder_path'] + "/*" + pars['file_ext'])[:]
+    else:
+        files = glob.glob(pars['folder_path'] + "/*" + pars['file_ext'])[:pars['#ofImages']]
+    # files = glob.glob(pars['folder_path'] + "/*" + pars['file_ext'])[:150]   
+    tot = len(files)
+    # report_cols=['file_name','ch#','crop#','feret-diameter','convex_hull']
+    measurements=pd.DataFrame()
+    print("start")
+    for j, file_path in enumerate(files):
+        flowbs = []
+        #         Open Image
+        img = angler.MicImage(image_path=file_path)
+        para = Paragraph(path_leaf(file_path), sample_style_sheet['Heading2'])
+        flowbs.append(para)
+
+        for i, ch in enumerate(pars["FISH_ch"]):
+            ch_measurements=pd.DataFrame()
+            crds = angler.FISH_finder(img.maxprj[..., ch], thresh=pars['threshold'][ch],crop_size=pars['crop_size'])
+            for crd_no,crd in enumerate(crds):
+                try:
+                    measurement={}
+                    measurement={"file_name":path_leaf(file_path)}
+                    measurement.update({"channel":ch})
+                    measurement.update({"crop#":crd_no})
+                    measurement.update({"crop_coordinates":crd})
+                    # crop each crd
+                    crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size'])
+                    # remove Background
+                    no_noise=angler.subtract_bkg(crp)
+
+                    # measure feret
+                    feret_m=feret(prj=no_noise.sumprj,pixel_size=pixel_size(no_noise),threshold=pars['feret_threshold'])
+                    #color code for plot
+                    measurement.update(feret_m)
+                    ch_measurements=ch_measurements.append(pd.DataFrame([measurement]),ignore_index=True)
+                except:
+                    print('Something went wrong with feret measurement of image',str(measurement['file_name']),str(measurement['crop#']))
+            
+            # Make the graph
+            measurements=measurements.append(ch_measurements,ignore_index=True)
+            try:
+                fig=angler.compaction_plotter(img,ch,ch_measurements,pars)
+                buf = BytesIO()
+                fig.savefig(buf, dpi=300, format="tiff")
+                buf.seek(0)
+                plt.close(fig)
+                fig_img = Image(buf, 7 * inch, 5 * inch)
+                flowbs.append(fig_img)
+            except:
+                print('Something went wrong with crd plotting of image',str(measurement['file_name']),str(measurement['crop#']))
+
+        flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=flowb_c)
+#         buf.close()
+        bioformats.clear_image_reader_cache()
+        angler.update_progress("Compaction_FISH:", index=j + 1, total=tot)
+    pdf_paths = glob.glob(temp_report_dir.name + '/*.pdf')
+    pdf_paths.sort()
+    angler.pdf_merger(pars["pdf_report_path"], pdf_paths)
+    temp_report_dir.cleanup()
+    print("\n PDF report created in:{}".format(pars["pdf_report_path"]))
+    return measurements
 
 def compaction_plotter(img,ch,ch_pandas,pars):
     """
