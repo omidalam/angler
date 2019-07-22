@@ -402,10 +402,10 @@ def compaction_plotter(img,ch,ch_pandas,pars):
 
     fig, ax = plt.subplots(figsize=(7, 5),dpi=300, sharex=True, sharey=True)
     rgb=np.zeros((img.meta("size_y"),img.meta("size_x"),3),dtype=int)
-    rgb[:,:,0]=rescale_intensity(img.maxprj[..., ch],out_range=(0, 255))
+    rgb[:,:,0]=rescale_intensity(img.sumprj[..., ch],out_range=(0, 255))
     rgb[:,:,1]=np.zeros((img.meta("size_y"),img.meta("size_x")),dtype=int)
 #     rgb[:,:,2]=np.zeros((img.meta("size_y"),img.meta("size_x")),dtype=int)
-    rgb[:,:,2]=rescale_intensity(img.maxprj[..., pars['DAPI_ch']],out_range=(0, 200))
+    rgb[:,:,2]=rescale_intensity(img.sumprj[..., pars['DAPI_ch']],out_range=(0, 200))
 
     ax.imshow(rgb)
     for index,loci in ch_pandas.iterrows():
