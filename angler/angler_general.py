@@ -61,7 +61,7 @@ def FISH_finder_dry(folder_path,file_ext,FISH_ch,FISH_ch_names,thresh=0.5,exclud
     
 
 
-def FISH_finder(img,thresh,crop_size=40):
+def FISH_finder(img,thresh,crop_size,exclude_border=2):
     '''
     This function finds the coordinates of local maxima in max-projected FISH
     data.
@@ -85,7 +85,7 @@ def FISH_finder(img,thresh,crop_size=40):
     '''
 
     min_loci_dist=int(sqrt(2*((crop_size/2)**2)))
-    coordinates = peak_local_max(img, min_distance=min_loci_dist,threshold_rel=thresh,exclude_border=int(crop_size/2))
+    coordinates = peak_local_max(img, min_distance=min_loci_dist,threshold_rel=thresh,exclude_border=exclude_border)
     return coordinates
     
 
@@ -336,25 +336,33 @@ def compaction_fish(pars):
 
         for i, ch in enumerate(pars["FISH_ch"]):
             ch_measurements=pd.DataFrame()
-            crds = angler.FISH_finder(img.maxprj[..., ch], thresh=pars['threshold'][ch],crop_size=pars['crop_size'])
-            for crd_no,crd in enumerate(crds):
+            # crds = angler.FISH_finder(img.maxprj[..., ch], thresh=pars['threshold'][ch],crop_size=pars['crop_size']) # For 2D crds
+            crds=angler.FISH_finder(img.pixels[..., ch], thresh=pars['threshold'][ch],
+            crop_size=pars['crop_size']) #For 3D crds
+            crds=[[i,[j,k]] for i,j,k in crds]
+            for crd_no,(z_crd,xy_crd) in enumerate(crds):
                 try:
                     measurement={}
                     measurement={"file_name":path_leaf(file_path)}
                     measurement.update({"channel":ch})
                     measurement.update({"crop#":crd_no})
-                    measurement.update({"crop_coordinates":crd})
+                    measurement.update({"crop_coordinates":xy_crd})
                     # crop each crd
-                    crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size'])
+                    # crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size']) # For 2D
                     
+                    if pars['use_z']:
+                        crp=crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=z_crd,z_size=pars['number_of_stacks'])
+                    else:
+                        crp=crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=None)
+
                     if pars["noise_removal"]:
                         # remove Background
                         no_noise=angler.subtract_bkg(crp)
                         # measure feret
-                        feret_m=feret(prj=no_noise.sumprj,pixel_size=pixel_size(no_noise),threshold=pars['feret_threshold'])
+                        feret_m=angler.feret(prj=no_noise.getPRJ(pars["prj_method"]),pixel_size=angler.pixel_size(no_noise),threshold=pars['feret_threshold'])
                     else:
                         # measure feret
-                        feret_m=feret(prj=crp.sumprj,pixel_size=pixel_size(crp),threshold=pars['feret_threshold'])
+                        feret_m=angler.feret(prj=crp.getPRJ(pars["prj_method"]),pixel_size=angler.pixel_size(crp),threshold=pars['feret_threshold'])
                     
                     #color code for plot
                     measurement.update(feret_m)
@@ -364,16 +372,16 @@ def compaction_fish(pars):
             
             # Make the graph
             measurements=measurements.append(ch_measurements,ignore_index=True)
-            try:
-                fig=angler.compaction_plotter(img,ch,ch_measurements,pars)
-                buf = BytesIO()
-                fig.savefig(buf, dpi=300, format="tiff")
-                buf.seek(0)
-                plt.close(fig)
-                fig_img = Image(buf, 7 * inch, 5 * inch)
-                flowbs.append(fig_img)
-            except:
-                print('Something went wrong with crd plotting of image',str(measurement['file_name']),str(measurement['crop#']))
+            # try:
+            fig=angler.compaction_plotter(img,ch,ch_measurements,pars)
+            buf = BytesIO()
+            fig.savefig(buf, dpi=300, format="tiff")
+            buf.seek(0)
+            plt.close(fig)
+            fig_img = Image(buf, 6.3 * inch, 4.5 * inch)
+            flowbs.append(fig_img)
+            # except:
+                # print('Something went wrong with crd plotting of image',str(measurement['file_name']),str(measurement['crop#']))
 
         flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=flowb_c)
 #         buf.close()
@@ -386,7 +394,7 @@ def compaction_fish(pars):
     print("\n PDF report created in:{}".format(pars["pdf_report_path"]))
     return measurements
 
-def compaction_plotter(img,ch,ch_pandas,pars):
+def compaction_plotter(img,ch,ch_pandas,pars,prj_method="max"):
     """
     annotates FISH image with coordinates found by FISH_finder.
     Parameters:
@@ -395,44 +403,47 @@ def compaction_plotter(img,ch,ch_pandas,pars):
     
     Returns: Marked figure.
     """
-    crds=ch_pandas["crop_coordinates"]
+    # crds=ch_pandas["crop_coordinates"]
     half_crop=int(pars['crop_size']/2)
-    rectangle_crds= crds-half_crop
-    text_crds=[(x,y) for y,x in crds]
+    # rectangle_crds= crds-half_crop
+    # text_crds=[(x,y) for y,x in crds]
 
     fig, ax = plt.subplots(figsize=(7, 5),dpi=300, sharex=True, sharey=True)
     rgb=np.zeros((img.meta("size_y"),img.meta("size_x"),3),dtype=int)
-    rgb[:,:,0]=rescale_intensity(img.sumprj[..., ch],out_range=(0, 255))
+    rgb[:,:,0]=rescale_intensity(img.getPRJ(pars['plotting_method'])[..., ch],out_range=(0, 255))
     rgb[:,:,1]=np.zeros((img.meta("size_y"),img.meta("size_x")),dtype=int)
 #     rgb[:,:,2]=np.zeros((img.meta("size_y"),img.meta("size_x")),dtype=int)
-    rgb[:,:,2]=rescale_intensity(img.sumprj[..., pars['DAPI_ch']],out_range=(0, 200))
+    rgb[:,:,2]=rescale_intensity(img.getPRJ(pars['plotting_method'])[..., pars['DAPI_ch']],out_range=(0, 200))
 
     ax.imshow(rgb)
     for index,loci in ch_pandas.iterrows():
-        crd_y,crd_x=[i-half_crop for i in loci['crop_coordinates']]
-        crd=[crd_x,crd_y]
-        loci_rectangle=Rectangle(tuple(crd),pars['crop_size'],pars['crop_size'],
-                                linewidth=.4,edgecolor=loci["box_color"],facecolor='none')
-        ax.add_patch(loci_rectangle)
-        
-        # loci["contour"]+=
-        ax.plot(loci["contour"][:,1]+crd_x, loci["contour"][:,0]+crd_y, c="y",linewidth=.1)
-        # print(loci['line'])
-        # loci['line']=[i+crd for i in loci['line']]
-        loci['line'][0]=[i+crd_x for i in loci['line'][0]]
-        loci['line'][1]=[i+crd_y for i in loci['line'][1]]
-        ax.plot(loci['line'][0],loci['line'][1],c="green",linewidth=.2)
+        try:
+            crd_y,crd_x=[i-half_crop for i in loci['crop_coordinates']]
+            crd=[crd_x,crd_y]
+            loci_rectangle=Rectangle(tuple(crd),pars['crop_size'],pars['crop_size'],
+                                    linewidth=.4,edgecolor=loci["box_color"],facecolor='none')
+            ax.add_patch(loci_rectangle)
+            
+            # loci["contour"]+=
+            ax.plot(loci["contour"][:,1]+crd_x, loci["contour"][:,0]+crd_y, c="y",linewidth=.1)
+            # print(loci['line'])
+            # loci['line']=[i+crd for i in loci['line']]
+            loci['line'][0]=[i+crd_x for i in loci['line'][0]]
+            loci['line'][1]=[i+crd_y for i in loci['line'][1]]
+            ax.plot(loci['line'][0],loci['line'][1],c="green",linewidth=.2)
 
-        
-        ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
-                    xycoords='data', xytext=(half_crop,half_crop),textcoords='offset pixels')
+            
+            ax.annotate(str(index), c=loci["box_color"],fontsize=6, xy=(crd_x,crd_y),
+                        xycoords='data', xytext=(half_crop,half_crop),textcoords='offset pixels')
+        except:
+            print('Something went wrong with crd plotting of image',str(loci['file_name']),str(loci['crop#']))
         
     legend_elements = [Patch(facecolor='g',edgecolor='g',label='OK'),
     Patch(facecolor='r',edgecolor='r',label='Noise'),
     Patch(facecolor='m',edgecolor='m',label='More than 1 object')]
     plt.legend(handles=legend_elements,bbox_to_anchor=(1,0), loc="lower right", 
                 bbox_transform=fig.transFigure, ncol=4)
-    title = loci["file_name"]+ "Channel:" + pars['ch_names'][ch]
+    title = "Channel:" + pars['ch_names'][ch]
     fig.suptitle(title, fontsize=10)
     return fig
                              

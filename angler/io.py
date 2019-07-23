@@ -106,16 +106,60 @@ class MicImage(MicMetadata):
             self.sumprj=(np.sum(self.pixels,axis=0))
             # print("3D-image max projected along z axis. You can access it through image.sumprj")
             # return self.sumprj
-    def crop(self,channel,center_coord,crop_size):
+    def getPRJ(self,method):
+        valid_methods={"max","sum"}
+        if method not in valid_methods:
+            warnings.warn("Projection method is not valid, pick from following valid methods: {valid_methods}", UserWarning)
+        elif method=="max":
+            try: #check if maxprj exist
+                return self.maxprj
+            except:
+                self.prj("max")
+                return self.maxprj
+        elif method=="sum":
+            try: #check if sumprj exist
+                return self.sumprj
+            except: 
+                self.prj("sum")
+                return self.sumprj
+
+            # print("3D-image max projected along z axis. You can access it through image.maxprj")
+            # return self.maxprj
+        elif method=="sum":
+            self.sumprj=(np.sum(self.pixels,axis=0))
+    def crop(self,channel,center_coord,crop_size,z_coord=None,z_size=1):
         x1=center_coord[0]-int(crop_size/2)
         x2=x1+crop_size
         y1=center_coord[1]-int(crop_size/2)
         y2=y1+crop_size
         img_crop=MicImage()
         img_crop._metaData={**self._metaData}
-        img_crop.pixels= self.pixels[:,x1:x2,y1:y2,channel]
-        img_crop.prj("max")
-        img_crop.prj("sum")
+
+        if z_coord is not None and z_size>1:
+            z1=z_coord-int(z_size/2)
+            if z1<0:
+                z1=0
+            z2=z1+z_size
+            # if z2>self.meta("size_z"):
+            #     z2=self.meta("size_z")
+        if (z_coord is not None and z_size==1):
+            z1=z_coord
+            z2=z1+1
+        if z_coord is None:
+            z1=0
+            z2=-1
+
+        img_crop.pixels= self.pixels[z1:z2,x1:x2,y1:y2,channel]
+        
+        if img_crop.pixels.shape[0] is 1:
+            img_crop.pixels=np.squeeze(img_crop.pixels)
+            img_crop.sumprj=np.squeeze(img_crop.pixels)
+            img_crop.maxprj=np.squeeze(img_crop.pixels)
+        else:
+            img_crop.prj("max")
+            img_crop.prj("sum")
+        img_crop._metaData.update({"size_x": crop_size})
+        img_crop._metaData.update({"size_x": crop_size})
 
         return img_crop
     #     import copycrp= self
