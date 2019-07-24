@@ -130,7 +130,7 @@ def rep_first_page(pars):
     para = Paragraph("Report name: %s" % pars["pdf_report_path"], sample_style_sheet['BodyText'])
     flowables.append(para)
 
-    for ch,threshold in zip(pars["FISH_ch"],pars["threshold"]):
+    for ch,threshold in zip(pars["FISH_ch"],pars['FISH_finder_threshold']):
         para = Paragraph("Threshold used for FISH_finder in channel {0}: {1}".format(ch,threshold), sample_style_sheet['BodyText'])
         flowables.append(para)
 
@@ -228,7 +228,7 @@ def feret(prj,pixel_size,threshold=0.5):
         return feret
     
     feret={}
-    feret.update({"threshold":threshold})
+    feret.update({"feret_threshold":threshold})
     feret.update({"convex_hull":False})
     feret.update({"noise":False})
     feret.update({"box_color":"g"})
@@ -336,8 +336,8 @@ def compaction_fish(pars):
 
         for i, ch in enumerate(pars["FISH_ch"]):
             ch_measurements=pd.DataFrame()
-            # crds = angler.FISH_finder(img.maxprj[..., ch], thresh=pars['threshold'][ch],crop_size=pars['crop_size']) # For 2D crds
-            crds=angler.FISH_finder(img.pixels[..., ch], thresh=pars['threshold'][ch],
+            # crds = angler.FISH_finder(img.maxprj[..., ch], thresh=pars['FISH_finder_threshold'][ch],crop_size=pars['crop_size']) # For 2D crds
+            crds=angler.FISH_finder(img.pixels[..., ch], thresh=pars['FISH_finder_threshold'][ch],
             crop_size=pars['crop_size']) #For 3D crds
             crds=[[i,[j,k]] for i,j,k in crds]
             for crd_no,(z_crd,xy_crd) in enumerate(crds):
