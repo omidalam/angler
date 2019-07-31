@@ -388,7 +388,7 @@ def compaction_fish(pars):
             fig.savefig(buf, dpi=300, format="tiff")
             buf.seek(0)
             plt.close(fig)
-            fig_img = Image(buf, 6.3 * inch, 4.5 * inch)
+            fig_img = Image(buf, 5.6 * inch, 4 * inch)
             flowbs.append(fig_img)
             # except:
                 # print('Something went wrong with crd plotting of image',str(measurement['file_name']),str(measurement['crop#']))
