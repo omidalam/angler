@@ -341,10 +341,10 @@ def compaction_fish(pars):
         flowbs = []
         #         Open Image
         img = angler.MicImage(image_path=file_path)
-        para = Paragraph(path_leaf(file_path), sample_style_sheet['Heading2'])
-        flowbs.append(para)
 
         for i, ch in enumerate(pars["FISH_ch"]):
+            para = Paragraph(path_leaf(file_path), sample_style_sheet['Heading3'])
+            flowbs.append(para)            
             ch_measurements=pd.DataFrame()
             # crds = angler.FISH_finder(img.maxprj[..., ch], thresh=pars['FISH_finder_threshold'][ch],crop_size=pars['crop_size']) # For 2D crds
             crds=angler.FISH_finder(img.pixels[..., ch], thresh=pars['FISH_finder_threshold'][ch],
