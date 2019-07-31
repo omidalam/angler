@@ -179,13 +179,10 @@ def update_progress(job_title, index, total):
 
 
 def PDF_gen(flowables, path, counter):
-
     pdf_path = path + "/" + str(counter) + ".pdf"
     pdf_report = SimpleDocTemplate(pdf_path)
     sample_style_sheet = getSampleStyleSheet()
     pdf_report.build(flowables)
-    counter += 1
-    return counter
 
 
 def pdf_merger(output_path, input_paths):
@@ -396,7 +393,8 @@ def compaction_fish(pars):
             # except:
                 # print('Something went wrong with crd plotting of image',str(measurement['file_name']),str(measurement['crop#']))
 
-        flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=flowb_c)
+        # flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=flowb_c)
+        angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=path_leaf(file_path))
 #         buf.close()
         bioformats.clear_image_reader_cache()
         angler.update_progress("Compaction_FISH:", index=j + 1, total=tot)
