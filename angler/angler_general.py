@@ -396,7 +396,8 @@ def compaction_fish(pars):
             # except:
                 # print('Something went wrong with crd plotting of image',str(measurement['file_name']),str(measurement['crop#']))
 
-        flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=flowb_c)
+        # flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=flowb_c)
+        flowb_c = angler.PDF_gen(flowables=flowbs, path=temp_report_dir.name, counter=path_leaf(file_path))
 #         buf.close()
         bioformats.clear_image_reader_cache()
         angler.update_progress("Compaction_FISH:", index=j + 1, total=tot)
