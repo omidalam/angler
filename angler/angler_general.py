@@ -405,7 +405,10 @@ def compaction_fish(pars):
     angler.pdf_merger(pars["pdf_report_path"], pdf_paths)
     temp_report_dir.cleanup()
     print("\n PDF report created in:{}".format(pars["pdf_report_path"]))
-    return measurements
+
+
+    cols=["file_name","channel","crop#","feret","feret_threshold","area","pixel_size","pixel_type","noise","convex_hull","box_color"]
+    return measurements[cols]
 
 def compaction_plotter(img,ch,ch_pandas,pars,prj_method="max"):
     """
