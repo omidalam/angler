@@ -259,6 +259,8 @@ def feret(prj,pixel_size,threshold=0.5):
     elif tot_objects>1:
         chull=convex_hull_image(binary_prj)
         binary_prj[chull]=1
+        label_img, tot_objects = label(binary_prj,return_num=True)
+        feret.update({"convex_hull":True})
         feret.update({"box_color":"m"})
         regions = regionprops(label_img, coordinates='xy') #Only workds with skimage=0.14.*. Starting 0.16 they are changing coordinate system.
         if regions[0].area<4:
@@ -266,7 +268,7 @@ def feret(prj,pixel_size,threshold=0.5):
             feret.update({"box_color":"r"})
         measurement=measure_feret(binary_prj,pixel_size["pixel_size"])
         feret.update(measurement)        
-        feret.update({"convex_hull":True})
+        
 #         print(feret)
 #         feret.update({"noise":True})
 #     print(feret)
