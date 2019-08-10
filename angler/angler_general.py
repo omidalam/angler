@@ -363,9 +363,9 @@ def compaction_fish(pars):
                     # crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size']) # For 2D
                     
                     if pars['use_z']:
-                        crp=crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=z_crd,z_size=pars['number_of_stacks'])
+                        crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=z_crd,z_size=pars['number_of_stacks'])
                     else:
-                        crp=crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=None)
+                        crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=None)
 
                     if pars["noise_removal"]:
                         # remove Background
