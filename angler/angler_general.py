@@ -356,7 +356,7 @@ def compaction_fish(pars):
                 try:
                     measurement={}
                     measurement={"file_name":path_leaf(file_path)}
-                    measurement.update({"channel":ch})
+                    measurement.update({"channel":pars["ch_names"][ch]})
                     measurement.update({"crop#":crd_no})
                     measurement.update({"crop_coordinates":xy_crd})
                     # crop each crd
