@@ -135,7 +135,7 @@ class MicImage(MicMetadata):
         img_crop=MicImage()
         img_crop._metaData={**self._metaData}
 
-        if z_coord is not None and z_size is not 1:
+        if z_coord is not None and z_size is not 1 and z_size is not 'all':
             z1=z_coord-int(z_size/2)
             if z1<0:
                 z1=0
