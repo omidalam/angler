@@ -353,34 +353,34 @@ def compaction_fish(pars):
             crop_size=pars['crop_size']) #For 3D crds
             crds=[[i,[j,k]] for i,j,k in crds]
             for crd_no,(z_crd,xy_crd) in enumerate(crds):
-                try:
-                    measurement={}
-                    measurement={"file_name":path_leaf(file_path)}
-                    measurement.update({"channel":pars["ch_names"][ch]})
-                    measurement.update({"crop#":crd_no})
-                    measurement.update({"crop_coordinates":xy_crd})
-                    # crop each crd
-                    # crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size']) # For 2D
-                    
-                    if pars['use_z']:
-                        crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=z_crd,z_size=pars['number_of_stacks'])
-                    else:
-                        crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=None)
+                # try:
+                measurement={}
+                measurement={"file_name":path_leaf(file_path)}
+                measurement.update({"channel":pars["ch_names"][ch]})
+                measurement.update({"crop#":crd_no})
+                measurement.update({"crop_coordinates":xy_crd})
+                # crop each crd
+                # crp=img.crop(center_coord=crd,channel=ch,crop_size=pars['crop_size']) # For 2D
+                
+                if pars['use_z']:
+                    crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=z_crd,z_size=pars['number_of_stacks'])
+                else:
+                    crp=img.crop(center_coord=xy_crd,channel=ch,crop_size=pars['crop_size'],z_coord=None)
 
-                    if pars["noise_removal"]:
-                        # remove Background
-                        no_noise=angler.subtract_bkg(crp)
-                        # measure feret
-                        feret_m=angler.feret(prj=no_noise.getPRJ(pars["prj_method"]),pixel_size=angler.pixel_size(no_noise),threshold=pars['feret_threshold'])
-                    else:
-                        # measure feret
-                        feret_m=angler.feret(prj=crp.getPRJ(pars["prj_method"]),pixel_size=angler.pixel_size(crp),threshold=pars['feret_threshold'])
-                    
-                    #color code for plot
-                    measurement.update(feret_m)
-                    ch_measurements=ch_measurements.append(pd.DataFrame([measurement]),ignore_index=True)
-                except:
-                    print('Something went wrong with feret measurement of image',str(measurement['file_name']),str(measurement['crop#']))
+                if pars["noise_removal"]:
+                    # remove Background
+                    no_noise=angler.subtract_bkg(crp)
+                    # measure feret
+                    feret_m=angler.feret(prj=no_noise.getPRJ(pars["prj_method"]),pixel_size=angler.pixel_size(no_noise),threshold=pars['feret_threshold'])
+                else:
+                    # measure feret
+                    feret_m=angler.feret(prj=crp.getPRJ(pars["prj_method"]),pixel_size=angler.pixel_size(crp),threshold=pars['feret_threshold'])
+                
+                #color code for plot
+                measurement.update(feret_m)
+                ch_measurements=ch_measurements.append(pd.DataFrame([measurement]),ignore_index=True)
+                # except:
+                #     print('Something went wrong with feret measurement of image',str(measurement['file_name']),str(measurement['crop#']))
             
             # Make the graph
             measurements=measurements.append(ch_measurements,ignore_index=True)

@@ -152,7 +152,7 @@ class MicImage(MicMetadata):
         if z_size is not 'all':
             img_crop.pixels= self.pixels[z1:z2,x1:x2,y1:y2,channel]
         elif z_size is 'all':
-            img_crop.pixels= self.pixels[:,x1:x2,y1:y2,channel]
+            img_crop.pixels= self.pixels[,x1:x2,y1:y2,channel]
         
         if img_crop.pixels.shape[0] is 1:
             img_crop.pixels=np.squeeze(img_crop.pixels)
