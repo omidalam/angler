@@ -41,25 +41,6 @@ import logging
 import numpy as np
 import pandas as pd
 
-def FISH_finder_dry(folder_path,file_ext,FISH_ch,FISH_ch_names,thresh=0.5,exclude_border=40):
-    '''
-    This function performs a dry run to detect FISH spots.
-    The sole purpose of this function to emprically find best threshold for a ceratin FISH experiment.
-
-    Input Parameters:
-    folder_path: str, A folder containing FISH mciroscopy data
-    files_ext: str, file extension to search in the folder (e.g. "D3D.dv", ".dv",".flex")
-    FISH_ch: tuple of ints containing channel numbers containing FISH signals (index is zero based)
-    FISH_ch_names: tuple of strs containing channel names for FISH signals (e.g. "RP11-33o9", "lib11",etc)
-    thresh: float 0.0-1.0 relative threshold of the peaks value, compared to maximum value of the image.
-    exclude_border: int excludes local peaks that are in the border of an image.
-    min_dist: int excludes local peaks that are closer than this value to each other. 
-    '''
-    from reportlab.lib.pagesizes import letter
-    from reportlab.pdfgen import canvas
-
-    
-
 
 def FISH_finder(img,thresh,crop_size,exclude_border=2):
     '''
@@ -90,17 +71,47 @@ def FISH_finder(img,thresh,crop_size,exclude_border=2):
     
 
 def im_prj(img,z_ind,method='max'):
-    # img should be hyperstack image in numpy format.
-    # You can findout which axis is z by the following coomand: img.shape
-    # You can tell which axis is Z if you know number of Z stacks.
+    '''
+    This function creates sum or max project of a numpy array along the z-axis. 
+    (make sense for max and projection).
+    Projection method has been implemented for MicImage class. 
+    This will be removed in the later versions of the package.
+
+    Parameters:
+    -----------
+        img: array_like
+            3+ dimensional image.
+        z_ind: int
+            The index of axis along with projection should be performed.
+        method: str
+            The projection method. "max" for max-projection and "sum" for sum-projection.
+
+    Returns:
+    -----------
+    projected image: ndarray or scalar.
+    '''
     
-    #Project image along Z axis
     if method=="max":
         return(np.amax(img,axis=z_ind))
     if method=="sum":
         return(np.sum(img,axis=z_ind))
 
 def rep_first_page(pars,title):
+    '''
+    Generates the first page of the angler report.
+
+    Parameters:
+    -----------
+        pars: dict
+            dictionary containing parameters used for this angler run.
+        title: str
+            Title to be printed at the top of the page.
+    Returns:
+        flowbs: list
+            To be used with the reportlab package.
+    -----------
+
+    '''
 
 
     sample_style_sheet = getSampleStyleSheet()
@@ -122,28 +133,6 @@ def rep_first_page(pars,title):
     para = Paragraph("Parameteres:", sample_style_sheet['Heading2'])
     flowables.append(para)
 
-    # para = Paragraph("Microscopy file folder: %s" % pars["folder_path"], sample_style_sheet['BodyText'])
-    # flowables.append(para)
-
-    # para = Paragraph("Number of file in filer: %s" % pars["file_no"], sample_style_sheet['BodyText'])
-    # flowables.append(para)
-
-    # para = Paragraph("Report name: %s" % pars["pdf_report_path"], sample_style_sheet['BodyText'])
-    # flowables.append(para)
-
-    # for ch,threshold in zip(pars["FISH_ch"],pars['FISH_finder_threshold']):
-    #     para = Paragraph("Threshold used for FISH_finder in channel {0}: {1}".format(ch,threshold), sample_style_sheet['BodyText'])
-    #     flowables.append(para)
-
-    # para = Paragraph("Exclude border: %i" % pars["exclude_border"], sample_style_sheet['BodyText'])
-    # flowables.append(para)
-
-    # para = Paragraph("Threshold used for feret in all channels %f" %pars['feret_threshold'], sample_style_sheet['BodyText'])
-    # flowables.append(para)
-
-    # para = Paragraph("Noise removed %s" %str(pars['noise_removal']), sample_style_sheet['BodyText'])
-    # flowables.append(para)
-
     for key in pars.keys():
         para = Paragraph(key+": "+str(pars[str(key)]), sample_style_sheet['BodyText'])
         flowables.append(para)
@@ -162,12 +151,38 @@ def rep_first_page(pars,title):
 
 
 def path_leaf(path):
-
+    '''
+    Extract the file name from the file's path.
+    Generates the first page of the angler report.
+    
+    Parameters:
+    -----------
+        path: str
+            path pointing to a file.
+    Returns:
+        filename: str
+            file name portion of the file path.
+    -----------
+    '''
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
-
 def update_progress(job_title, index, total):
+    '''
+    Creates a stdout progress bar.
+    
+    Parameters:
+    -----------
+        job_title: str
+            Title of the job.
+        index: int
+            Index of the task being done.
+        total: int
+            Total number of tasks to be done.
+    Returns:
+    -----------
+
+    '''    
     progress = index / total
     length = 20  # modify this to change the length
     block = int(round(length * progress))
@@ -179,6 +194,26 @@ def update_progress(job_title, index, total):
 
 
 def PDF_gen(flowables, path, counter):
+    '''
+    Generates a pdf file based on list of flowables. 
+    See reportlab package for more details on how to create flowables.
+
+    It uses a counter based method to generate pdf files that are all in order.
+    
+    Parameters:
+    -----------
+        flowables: list
+            list of flowables to be parsed.
+        path: str
+            folder to output the PDF.
+
+
+    Returns:
+        flowbs: list
+            To be used with the reportlab package.
+    -----------
+
+    '''    
 
     pdf_path = path + "/" + str(counter) + ".pdf"
     pdf_report = SimpleDocTemplate(pdf_path)
