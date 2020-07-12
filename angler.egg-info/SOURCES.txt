@@ -13,5 +13,6 @@ angler.egg-info/requires.txt
 angler.egg-info/top_level.txt
 angler/logo/angler-logo.svg
 angler/logo/angler-logo_640.png
+angler/logo/angler_postcard.jpg
 angler/logo/anlger-logo.png
 angler/logo/anlger-logo_1280.png
