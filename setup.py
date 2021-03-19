@@ -14,7 +14,8 @@ setup(name='angler',
           'scipy',
           'matplotlib',
           'python-bioformats',
-          'reportlab'
+          'reportlab',
+          'PyPDF2'
       ],
       inculde_package_data=True,
       zip_safe=False)

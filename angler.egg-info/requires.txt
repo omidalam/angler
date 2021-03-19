@@ -4,3 +4,4 @@ scipy
 matplotlib
 python-bioformats
 reportlab
+PyPDF2
