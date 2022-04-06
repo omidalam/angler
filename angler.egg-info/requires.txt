@@ -1,6 +1,7 @@
 scikit-image
 numpy
 scipy
+pandas
 matplotlib
 python-bioformats
 reportlab
